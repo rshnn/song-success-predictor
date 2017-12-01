@@ -18,3 +18,8 @@
 
 [github link -- matches artist names from yahoo ratings set to the MSD (by artist_id)](https://github.com/tbertinmahieux/MSongsDB/blob/master/Tasks_Demos/YahooRatings/match_artist_names.py)
 
+[gitlub link -- MSongDB code.  Has python scripts and examples and stuff](https://github.com/tbertinmahieux/MSongsDB)
+
+[github link -- homeboi kevin over here did all the tutorials in python notebooks](https://github.com/kevin11hg/msong)
+
+[google group forum thing](https://groups.google.com/forum/#!forum/millionsongdataset)

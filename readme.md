@@ -98,9 +98,9 @@ CREATE TABLE songs (
         - artist_hotttnesss real, 
         - year int
 + Some useful queries:
-    * Get all songs without MB ID's : SELECT artist_id,artist_mbid FROM songs WHERE artist_mbid=''
-    * Get all distinct artists: SELECT DISTINCT artist_id, artist_name FROM songs
-    * Get all dudes with a float>value: SELECT DISTINCT artist_name, artist_familiarity FROM songs WHERE artist_familiarity>.8
+    * Get all songs without MB ID's : `SELECT artist_id,artist_mbid FROM songs WHERE artist_mbid=''`
+    * Get all distinct artists: `SELECT DISTINCT artist_id, artist_name FROM songs`
+    * Get all dudes with a float>value: `SELECT DISTINCT artist_name, artist_familiarity FROM songs WHERE artist_familiarity>.8`
         - Can use this one to filter out the tracks where hotttnesss is 0. (empty data) (WHERE NOT artist_hotttnesss=0)
 
 ### Potentially useful links

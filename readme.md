@@ -1,5 +1,74 @@
 # AI 530 MSD project
 
+Make sure the following files/folders are in the same directory:
++ tutorials/
++ MSongsDB/
++ MillionSongSubset/
++ swagmaster.db
++ create_track_metadata_db_custom.py
+
+
+## master plan
+
+1. [x] write script to build sample dataset 
+    + [ ] will need to amend to add another field (our custom `success` measure) 
+
+2. [ ] build another structure (pandas DataFrame?) to hold relevant fields for learning  
+    + Something that sklearn's models will accept.  do research on this/look into other github projects
+
+3. [ ] try to predict hotttnesss using other features 
+    + duration            real, 
+    + song_hotttnesss     real, 
+    + danceability        real, 
+    + energy              real, 
+    + key                 int,
+    + tempo               real, 
+    + loudness            real, 
+    + time_signature      int, 
+    + duration            real,
+    + artist_familiarity  real,
+    + artist_hotttnesss   real,
+
+4. [ ] Find a way to build the `success` measure using yahoo/itunes/spotify data 
+    + Ties into the above script...wont be simple plug.
+ 
+5.  [ ] Generate statistics 
+6.  [ ] Generate pretty plots 
+
+
+## building our dataset 
+
+Going to be very similar to the subset_track_metadata dataset.  Just adding more fields 
+
+```sql
+CREATE TABLE songs (
+    track_id            text PRIMARY KEY,
+    title               text,
+    song_id             text,
+    release             text,
+    artist_id           text,
+    artist_mbid         text,
+    artist_name         text,
+    duration            real,
+    artist_familiarity  real,
+    artist_hotttnesss   real,
+    year                int,
+    track_7digitalid    int,
+    shs_perf            int,  # ???
+    shs_work            int   # ???
+    # new ones vvv
+    song_hotttnesss     real, 
+    danceability        real, 
+    energy              real, 
+    key                 int,
+    tempo               real, 
+    loudness            real, 
+    time_signature      int
+);
+```
+
+
+
 ## Notes
 
 ### Tutorial notebooks 
@@ -39,7 +108,18 @@
 [github link -- matches artist names from yahoo ratings set to the MSD (by artist_id)](https://github.com/tbertinmahieux/MSongsDB/blob/master/Tasks_Demos/YahooRatings/match_artist_names.py)
 
 [gitlub link -- MSongDB code.  Has python scripts and examples and stuff](https://github.com/tbertinmahieux/MSongsDB)
-
+  
 [github link -- homeboi kevin over here did all the tutorials in python notebooks](https://github.com/kevin11hg/msong)
-
+  
 [google group forum thing](https://groups.google.com/forum/#!forum/millionsongdataset)
+  
+[jupnbk. project that shows how to create subset datasets](http://nbviewer.jupyter.org/github/ds3-at-ucsd/msd-fp-p1/blob/master/grab_msd_data.ipynb)
+  
+[report -- similar project done @ stanford.](http://cs229.stanford.edu/proj2014/Angela%20Xue,%20Nick%20Dupoux,%20Predicting%20the%20Commercial%20Success%20of%20Songs%20Based%20on%20Lyrics%20and%20Other%20Metrics.pdf)
+[github repo for the above](https://github.com/njdup/music_success_predictor_v2)
+"Average mean hotttnesss performs just as well LOL our features dont tell us shit" 
+"'Everything is fucked' njdup committed on Dec 12, 2014"
+  
+[github link --- some project that uses spark](https://github.com/hsudarshan/Trend_Analysis_MSD_using_Spark/blob/master/CSE740ProjectReport.pdf)
+  
+[year predictive modeling](http://ds3-at-ucsd.github.io/msd-fp-p1/)

@@ -1,3 +1,10 @@
 MillionSongSubset/
 MillionSongDataset/
 MSongsDB/
+
+swagmaster.db
+track_metadata.db
+
+*.pyc
+.ipynb_checkpoints/
+tutorials/.ipynb_checkpoints/

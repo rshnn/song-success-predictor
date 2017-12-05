@@ -10,6 +10,7 @@ import datetime
 import sqlite3
 import json
 import numpy as np
+import pandas as pd
 import random
 
 # config.py contains configuration constants 
@@ -74,3 +75,36 @@ class Utilities(object):
         hotttnesss = [value[0] for value in hotttnesss]
         return sum(hotttnesss)/float(len(hotttnesss))
 
+
+
+    def create_dataframes(self, training_list, testing_list):
+        """
+        transforms the list outputs of 'get_datasets()'
+        RETURN two dataframes: training_DF, testing_DF 
+        """
+
+        column_names = "track_id \
+                        title               \
+                        song_id             \
+                        release             \
+                        artist_id           \
+                        artist_mbid         \
+                        artist_name         \
+                        duration            \
+                        artist_familiarity  \
+                        artist_hotttnesss   \
+                        year                \
+                        track_7digitalid    \
+                        shs_perf            \
+                        shs_work            \
+                        song_hotttnesss     \
+                        danceability        \
+                        energy              \
+                        key                 \
+                        tempo               \
+                        loudness            \
+                        time_signature".split()
+
+        training_DF = pd.DataFrame(training_list, columns=column_names)
+        testing_DF = pd.DataFrame(testing_list, columns=column_names)
+        return training_DF, testing_DF

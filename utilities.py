@@ -108,3 +108,17 @@ class Utilities(object):
         training_DF = pd.DataFrame(training_list, columns=column_names)
         testing_DF = pd.DataFrame(testing_list, columns=column_names)
         return training_DF, testing_DF
+
+
+
+
+    def generate_energy_measure(self, training_df, testing_df):
+        """
+        adds energy measure values for all rows in both input dataframes
+        RETURN training_df, testing_df
+        """
+
+        training_df['energy'] = training_df['loudness']
+        testing_df['energy'] = testing_df['tempo']
+
+        return training_df, testing_df

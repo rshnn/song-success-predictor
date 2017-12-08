@@ -11,29 +11,28 @@ Make sure the following files/folders are in the same directory:
 ## master plan
 
 1. [x] write script to build sample dataset 
-    + [ ] will need to amend to add another field (our custom `success` measure) 
 
-2. [ ] build another structure (pandas DataFrame?) to hold relevant fields for learning  
-    + Something that sklearn's models will accept.  do research on this/look into other github projects
+2. [x] build another structure (pandas DataFrame?) to hold relevant fields for learning  
 
-3. [ ] try to predict hotttnesss using other features 
-    + duration            real, 
-    + song_hotttnesss     real, 
-    + danceability        real, 
-    + energy              real, 
-    + key                 int,
-    + tempo               real, 
-    + loudness            real, 
-    + time_signature      int, 
-    + duration            real,
-    + artist_familiarity  real,
-    + artist_hotttnesss   real,
+3. [ ] try to predict song_hotttnesss using other features 
+    + acoustic 
+        * key                 int,
+        * tempo               real, 
+        * loudness            real, 
+        * time_signature      int, 
+    + metadata 
+        * duration            real, 
+        * artist_familiarity  real,
+        * artist_hotttnesss   real,
+    + What learning models should we try?
+        * Logistic regression
+        * SVM
+        * kNN
 
-4. [ ] Find a way to build the `success` measure using yahoo/itunes/spotify data 
-    + Ties into the above script...wont be simple plug.
- 
-5.  [ ] Generate statistics 
-6.  [ ] Generate pretty plots 
+4.  Hopefully learning models using the above feature set perform poorly .  We decide that some of the acoustic features should be combined into `energy` and `danceability`.
+    + Do some googling.  Find out that ontologies represent these measures as derived values from other features: 
+        * `energy`: function of (loudness, segment stuff)
+        * `danceability`: function of (tempo, time_signature)
 
 
 ## building our dataset 
@@ -67,6 +66,14 @@ CREATE TABLE songs (
 );
 ```
 
+
+## Energy 
+The Echo Nest’s “energy” attribute, which is available for every song in our database, is computed by a combined analysis of many parts of the musical signal – the loudness, beats, structural changes and sounds of the instruments. This “energy” attribute results in a scaled floating point metric from 0 to 1, where 1 is the most energetic. From this analysis, popular music’s energy level started out around .3, and has now climbed to .7 – a big increase, and one that took decades.
+
+
+
+
+## Danceability 
 
 
 ## Notes

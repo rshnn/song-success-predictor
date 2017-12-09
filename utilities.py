@@ -138,7 +138,7 @@ class Utilities(object):
         DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
         DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
         DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
-        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(50000*tatums_avg*beats_avg)
+        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
         training_DF = DF
 
 
@@ -155,12 +155,56 @@ class Utilities(object):
         DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
         DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
         DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
-        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(50000*tatums_avg*beats_avg)
+        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
 
         testing_DF = DF
 
         return training_DF, testing_DF
     
+    def generate_dance_measure(self, training_DF, testing_DF):
+        """
+        adds energy measure values for all rows in both input dataframes
+        RETURN training_df, testing_df
+        """
+
+        DF = training_DF
+
+        loudness = training_DF['loudness']
+        tempo = training_DF['tempo']
+        time_sig = training_DF['time_signature']
+        key = training_DF['key']
+        sections_avg = training_DF['sections_avg']
+        beats_avg = training_DF['beats_avg']
+        tatums_avg = training_DF['tatums_avg']
+
+        DF['dance1'] = (12-time_sig)*(tempo)*(50+loudness)/10000
+        DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
+        DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
+        DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
+        
+        training_DF = DF
+
+
+        # Repeat for testing
+        DF = testing_DF
+
+        loudness = DF['loudness']
+        tempo = DF['tempo']
+        time_sig = DF['time_signature']
+        sections_avg = DF['sections_avg']
+        beats_avg = DF['beats_avg']
+        tatums_avg = DF['tatums_avg']
+
+        DF['dance1'] = (12-time_sig)*(tempo)*(50+loudness)/10000
+        DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
+        DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
+        DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
+
+        testing_DF = DF
+
+        return training_DF, testing_DF
+    
+
 
     
     def RunAndTestLinearRegModel(self, string_of_features, training_DF, testing_DF):

@@ -3,6 +3,7 @@ MillionSongDataset/
 MSongsDB/
 
 swagmaster.db
+swagmaster-with-intervals.db
 track_metadata.db
 
 *.pyc

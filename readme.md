@@ -8,6 +8,22 @@ Make sure the following files/folders are in the same directory:
 + create_track_metadata_db_custom.py
 
 
+
+## Findings
+
++ metadata features are stronger indicators of hottt than acoustic 
+
+
++ Combination of a couple of diverse features does better
+    * Combination of different energy calculations
+    * Combination of different metadata features
+    * Combination of different acoustic features  
+
++ The raw acoustic features perform fine on the training set
+    * they actually perform better than the energy measures on the training set
+    + energy measures **generalize better**.  theyre better on the test set
+
+
 ## master plan
 
 1. [x] write script to build sample dataset 
@@ -68,12 +84,13 @@ CREATE TABLE songs (
 
 
 ## Energy 
-The Echo Nest’s “energy” attribute, which is available for every song in our database, is computed by a combined analysis of many parts of the musical signal – the loudness, beats, structural changes and sounds of the instruments. This “energy” attribute results in a scaled floating point metric from 0 to 1, where 1 is the most energetic. From this analysis, popular music’s energy level started out around .3, and has now climbed to .7 – a big increase, and one that took decades.
+`energy`:  The feature mix we use to compute energy includes loudness and segment durations.
 
 
 
 
 ## Danceability 
+`danceability`: We use a mix of features to compute danceability, including beat strength, tempo stability, overall tempo, and more.
 
 
 ## Notes
@@ -122,7 +139,8 @@ The Echo Nest’s “energy” attribute, which is available for every song in o
   
 + [jupnbk. project that shows how to create subset datasets](http://nbviewer.jupyter.org/github/ds3-at-ucsd/msd-fp-p1/blob/master/grab_msd_data.ipynb)
   
-+ [report -- similar project done @ stanford.](http://cs229.stanford.edu/proj2014/Angela%20Xue,%20Nick%20Dupoux,%20Predicting%20the%20Commercial%20Success%20of%20Songs%20Based%20on%20Lyrics%20and%20Other%20Metrics.pdf)
++ [report -- similar project done @ stanford.](http://cs229.stanford.edu/proj2014/Angela%20Xue,%20Nick%20Dupoux,%20Predicting%20the%20Commercial%20Success%20of%20Songs%20Based%20on%20Lyrics%20and%20Other%20Metrics.pdf)  
+  
 [github repo for the above](https://github.com/njdup/music_success_predictor_v2)  
 "Average mean hotttnesss performs just as well LOL our features dont tell us shit" 
 "'Everything is fucked' njdup committed on Dec 12, 2014"

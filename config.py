@@ -2,9 +2,9 @@
 configuration stuff
 """
 
-DB_FILENAME = 'swagmaster.db'
+DB_FILENAME = 'swagmaster-with-intervals.db'
 
-HOTFILTER = "WHERE song_hotttnesss>0 AND artist_hotttnesss>0"
+HOTFILTER = "WHERE song_hotttnesss>0 AND artist_hotttnesss>0 AND beats_avg>0 AND bars_avg>0"
 
 TRAIN_FRAC = 0.75
 TEST_FRAC = 1-TRAIN_FRAC
@@ -31,5 +31,10 @@ INDEX_key                 = 17
 INDEX_tempo               = 18
 INDEX_loudness            = 19
 INDEX_time_signature      = 20
+INDEX_segments_avg        = 21
+INDEX_tatums_avg          = 22
+INDEX_beats_avg           = 23
+INDEX_bars_avg            = 24
+INDEX_sections_avg        = 25
 
 

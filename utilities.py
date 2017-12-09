@@ -13,6 +13,9 @@ import numpy as np
 import pandas as pd
 import random
 
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics 
+
 # config.py contains configuration constants 
 import config
 
@@ -103,7 +106,12 @@ class Utilities(object):
                         key                 \
                         tempo               \
                         loudness            \
-                        time_signature".split()
+                        time_signature \
+                        segments_avg \
+                        tatums_avg \
+                        beats_avg \
+                        bars_avg \
+                        sections_avg".split()
 
         training_DF = pd.DataFrame(training_list, columns=column_names)
         testing_DF = pd.DataFrame(testing_list, columns=column_names)
@@ -112,13 +120,88 @@ class Utilities(object):
 
 
 
-    def generate_energy_measure(self, training_df, testing_df):
+    def generate_energy_measure(self, training_DF, testing_DF):
         """
         adds energy measure values for all rows in both input dataframes
         RETURN training_df, testing_df
         """
 
-        training_df['energy'] = training_df['loudness']
-        testing_df['energy'] = testing_df['tempo']
+        DF = training_DF
 
-        return training_df, testing_df
+        loudness = DF['loudness']
+        tempo = DF['tempo']
+        time_sig = DF['time_signature']
+        sections_avg = DF['sections_avg']
+        beats_avg = DF['beats_avg']
+        tatums_avg = DF['tatums_avg']
+
+        DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
+        DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
+        DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
+        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(50000*tatums_avg*beats_avg)
+        training_DF = DF
+
+
+        # Repeat for testing
+        DF = testing_DF
+
+        loudness = DF['loudness']
+        tempo = DF['tempo']
+        time_sig = DF['time_signature']
+        sections_avg = DF['sections_avg']
+        beats_avg = DF['beats_avg']
+        tatums_avg = DF['tatums_avg']
+
+        DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
+        DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
+        DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
+        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(50000*tatums_avg*beats_avg)
+
+        testing_DF = DF
+
+        return training_DF, testing_DF
+    
+
+    
+    def RunAndTestLinearRegModel(self, string_of_features, training_DF, testing_DF):
+        """
+        Put in raw string of features.  Will run sklearn.linear_model.LinearRegression() to predict hotttnesss.
+        Errors are calculated and returned as tuples.
+        Returns: 
+            model class
+            training_error (mean_absolute_error, mean_squared_error, mean_error)
+            testing_error (mean_absolute_error, mean_squared_error, mean_error)
+            std dev of hotttnesss
+        """
+        X_cols = string_of_features.split()
+        X = training_DF[X_cols]
+        y_true_training = training_DF['song_hotttnesss']
+        y_true_testing = testing_DF['song_hotttnesss']
+
+        linreg = LinearRegression()
+        linreg.fit(X, y_true_training)
+
+        # Predicting the training_set
+        y_pred_training = linreg.predict(X)
+
+        # Predicting the testing_set
+        y_pred_testing = linreg.predict(testing_DF[X_cols])
+
+
+        # Calculating errors
+        mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training) 
+        mean_sq =  metrics.mean_squared_error(y_true_training, y_pred_training)
+        mean_err = np.sqrt(metrics.mean_squared_error(y_true_training, y_pred_training))
+        training_error = (mean_abs, mean_sq, mean_err)
+
+        mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing) 
+        mean_sq =  metrics.mean_squared_error(y_true_testing, y_pred_testing)
+        mean_err = np.sqrt(metrics.mean_squared_error(y_true_testing, y_pred_testing))
+        testing_error = (mean_abs, mean_sq, mean_err)
+
+        # Getting std deviation of hotttnesss    
+        total_DF = training_DF.append(testing_DF)
+        hot_std = total_DF['song_hotttnesss'].std()
+
+        return linreg, training_error, testing_error, hot_std
+

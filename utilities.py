@@ -135,11 +135,14 @@ class Utilities(object):
         sections_avg = DF['sections_avg']
         beats_avg = DF['beats_avg']
         tatums_avg = DF['tatums_avg']
+        art_fam = DF['artist_familiarity']
+        art_hot = DF['artist_hotttnesss']
+        
+        DF['energy1'] = art_fam*(50+loudness)/100
+        DF['energy2'] = (50+loudness)*3*art_fam/(500*beats_avg**0.5)
+        DF['energy3'] = (50+loudness)*art_fam/(100*tatums_avg**0.25)
+        DF['energy4'] = (50+loudness)*2*art_fam/(100000*tatums_avg*beats_avg)**0.5
 
-        DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
-        DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
-        DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
-        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
         training_DF = DF
 
 
@@ -152,11 +155,20 @@ class Utilities(object):
         sections_avg = DF['sections_avg']
         beats_avg = DF['beats_avg']
         tatums_avg = DF['tatums_avg']
+        art_fam = DF['artist_familiarity']
+        art_hot = DF['artist_hotttnesss']
 
-        DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
-        DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
-        DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
-        DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
+
+        # OLD HEURISTICS 
+        # DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
+        # DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
+        # DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
+        # DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
+        DF['energy1'] = art_fam*(50+loudness)/100
+        DF['energy2'] = (50+loudness)*3*art_fam/(500*beats_avg**0.5)
+        DF['energy3'] = (50+loudness)*art_fam/(100*tatums_avg**0.25)
+        DF['energy4'] = (50+loudness)*2*art_fam/(100000*tatums_avg*beats_avg)**0.5
+
 
         testing_DF = DF
 
@@ -177,11 +189,13 @@ class Utilities(object):
         sections_avg = training_DF['sections_avg']
         beats_avg = training_DF['beats_avg']
         tatums_avg = training_DF['tatums_avg']
+        art_fam = DF['artist_familiarity']
+        art_hot = DF['artist_hotttnesss']
 
-        DF['dance1'] = (12-time_sig)*(tempo)*(50+loudness)/10000
-        DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
-        DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
-        DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
+        DF['dance1'] = (12-time_sig)*(tempo)**0.5*(50+loudness)*art_hot/1000
+        DF['dance2'] = (12-time_sig)**0.5*(tempo)**0.5*(50+loudness)*2*art_hot/1000
+        DF['dance3'] = (12-time_sig)**0.5*(tempo)*(50+loudness)**2*art_fam/1000000
+        DF['dance4'] = (12-time_sig)**0.5*(tempo)*(50+loudness)*art_fam/10000
         
         training_DF = DF
 
@@ -195,11 +209,18 @@ class Utilities(object):
         sections_avg = DF['sections_avg']
         beats_avg = DF['beats_avg']
         tatums_avg = DF['tatums_avg']
+        art_fam = DF['artist_familiarity']
+        art_hot = DF['artist_hotttnesss']
 
-        DF['dance1'] = (12-time_sig)*(tempo)*(50+loudness)/10000
-        DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
-        DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
-        DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
+
+        # DF['dance1'] = (12-time_sig)**2*(tempo)*(50+loudness)/10000
+        # DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
+        # DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
+        # DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
+        DF['dance1'] = (12-time_sig)*(tempo)**0.5*(50+loudness)*art_hot/1000
+        DF['dance2'] = (12-time_sig)**0.5*(tempo)**0.5*(50+loudness)*2*art_hot/1000
+        DF['dance3'] = (12-time_sig)**0.5*(tempo)*(50+loudness)**2*art_fam/1000000
+        DF['dance4'] = (12-time_sig)**0.5*(tempo)*(50+loudness)*art_fam/10000
 
         testing_DF = DF
 

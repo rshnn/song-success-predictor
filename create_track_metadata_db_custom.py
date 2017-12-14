@@ -66,7 +66,9 @@ def create_db(filename):
 
     # new ones added below (rshnn)
     q += ', song_hotttnesss real, danceability real, energy real'
-    q += ', key int, tempo real, loudness real, time_signature int)'
+    q += ', key int, tempo real, loudness real, time_signature int'
+    q += ', segments_avg real, tatums_avg real, beats_avg real'
+    q += ', bars_avg real, sections_avg real)'
     
 
 
@@ -129,6 +131,26 @@ def fill_from_h5(conn, h5path, verbose=0):
     time_signature = get_time_signature(h5)
     q += ", " + str(time_signature)
 
+    segments = get_segments_start(h5)
+    segments_avg = get_spacing_avg(segments)
+    q += ", " + str(segments_avg)
+
+    tatums = get_tatums_start(h5)
+    tatums_avg = get_spacing_avg(tatums)
+    q += ", " + str(tatums_avg)
+
+    beats = get_beats_start(h5)
+    beats_avg = get_spacing_avg(beats)
+    q += ", " + str(beats_avg)
+
+    bars = get_bars_start(h5)
+    bars_avg = get_spacing_avg(bars)
+    q += ", " + str(bars_avg)
+
+    sections = get_sections_start(h5)
+    sections_avg = get_spacing_avg(sections)
+    q += ", " + str(sections_avg)
+
     # query done, close h5, commit
     h5.close()
     q += ')'
@@ -145,6 +167,20 @@ def fill_from_h5(conn, h5path, verbose=0):
         sys.exit(1)        
     #conn.commit() # we don't take care of the commit!
     c.close()
+
+
+def get_spacing_avg(x):
+
+    size =  x.size
+    total = 0
+
+    if size==0:
+        return -1
+
+    for i in range(1, size):
+        total += x[i]-x[i-1]
+
+    return total/size
 
 
 def add_indices_to_db(conn, verbose=0):

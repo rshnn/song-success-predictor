@@ -1,7 +1,7 @@
 """
-Utilities for handling song metadata in .db 
+Utilities for handling song metadata in .db
 """
- 
+
 import os
 import sys
 import time
@@ -14,10 +14,12 @@ import pandas as pd
 import random
 
 from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import preprocessing
 from sklearn.svm import SVR
-from sklearn import metrics 
+from sklearn import metrics
 
-# config.py contains configuration constants 
+# config.py contains configuration constants
 import config
 
 
@@ -39,9 +41,9 @@ class Utilities(object):
 
 
     def get_datasets(self):
-        """ 
-        Queries for sets to be used as training and testing sets 
-        RETURN: training_data, test_data as lists 
+        """
+        Queries for sets to be used as training and testing sets
+        RETURN: training_data, test_data as lists
         """
         query = ' '.join(['SELECT * FROM songs', config.HOTFILTER])
         response = self.db.execute(query)
@@ -58,7 +60,7 @@ class Utilities(object):
     def get_hotttnesss_list(self):
         """
         Queries to get all hotttnesss scores
-        RETURN: list of floats 
+        RETURN: list of floats
         """
         if not self.use_json:
             query = ' '.join(['SELECT song_hotttnesss FROM songs', config.HOTFILTER])
@@ -71,7 +73,7 @@ class Utilities(object):
     def get_average_hotttnesss(self):
         """
         Queries to get all hotttnesss scores and gets average
-        RETURN: float 
+        RETURN: float
         """
         query = ' '.join(['SELECT song_hotttnesss FROM songs', config.HOTFILTER])
         response = self.db.execute(query)
@@ -84,7 +86,7 @@ class Utilities(object):
     def create_dataframes(self, training_list, testing_list):
         """
         transforms the list outputs of 'get_datasets()'
-        RETURN two dataframes: training_DF, testing_DF 
+        RETURN two dataframes: training_DF, testing_DF
         """
 
         column_names = "track_id \
@@ -137,7 +139,7 @@ class Utilities(object):
         tatums_avg = DF['tatums_avg']
         art_fam = DF['artist_familiarity']
         art_hot = DF['artist_hotttnesss']
-        
+
         DF['energy1'] = art_fam*(50+loudness)/100
         DF['energy2'] = (50+loudness)*3*art_fam/(500*beats_avg**0.5)
         DF['energy3'] = (50+loudness)*art_fam/(100*tatums_avg**0.25)
@@ -159,7 +161,7 @@ class Utilities(object):
         art_hot = DF['artist_hotttnesss']
 
 
-        # OLD HEURISTICS 
+        # OLD HEURISTICS
         # DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
         # DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
         # DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
@@ -173,7 +175,7 @@ class Utilities(object):
         testing_DF = DF
 
         return training_DF, testing_DF
-    
+
     def generate_dance_measure(self, training_DF, testing_DF):
         """
         adds energy measure values for all rows in both input dataframes
@@ -196,7 +198,7 @@ class Utilities(object):
         DF['dance2'] = (12-time_sig)**0.5*(tempo)**0.5*(50+loudness)*2*art_hot/1000
         DF['dance3'] = (12-time_sig)**0.5*(tempo)*(50+loudness)**2*art_fam/1000000
         DF['dance4'] = (12-time_sig)**0.5*(tempo)*(50+loudness)*art_fam/10000
-        
+
         training_DF = DF
 
 
@@ -225,15 +227,15 @@ class Utilities(object):
         testing_DF = DF
 
         return training_DF, testing_DF
-    
 
 
-    
+
+
     def RunAndTestLinearRegModel(self, string_of_features, training_DF, testing_DF):
         """
         Put in raw string of features.  Will run sklearn.linear_model.LinearRegression() to predict hotttnesss.
         Errors are calculated and returned as tuples.
-        Returns: 
+        Returns:
             model class
             training_error (mean_absolute_error, mean_squared_error, mean_error)
             testing_error (mean_absolute_error, mean_squared_error, mean_error)
@@ -249,23 +251,29 @@ class Utilities(object):
 
         # Predicting the training_set
         y_pred_training = linreg.predict(X)
+        # print y_pred_training
+        # print y_true_training
 
         # Predicting the testing_set
         y_pred_testing = linreg.predict(testing_DF[X_cols])
 
+        # Printing additional stats
+        Y = testing_DF[X_cols]
+        print "Score for Training: \t" + str(linreg.score(X, y_true_training))
+        print "Score for Testing: \t" + str(linreg.score(Y, y_true_testing))
 
         # Calculating errors
-        mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training) 
+        mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training)
         mean_sq =  metrics.mean_squared_error(y_true_training, y_pred_training)
         mean_err = np.sqrt(metrics.mean_squared_error(y_true_training, y_pred_training))
         training_error = (mean_abs, mean_sq, mean_err)
 
-        mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing) 
+        mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing)
         mean_sq =  metrics.mean_squared_error(y_true_testing, y_pred_testing)
         mean_err = np.sqrt(metrics.mean_squared_error(y_true_testing, y_pred_testing))
         testing_error = (mean_abs, mean_sq, mean_err)
 
-        # Getting std deviation of hotttnesss    
+        # Getting std deviation of hotttnesss
         total_DF = training_DF.append(testing_DF)
         hot_std = total_DF['song_hotttnesss'].std()
 
@@ -277,7 +285,7 @@ class Utilities(object):
         """
         Put in raw string of features.  Will run sklearn.linear_model.LinearRegression() to predict hotttnesss.
         Errors are calculated and returned as tuples.
-        Returns: 
+        Returns:
             model class
             training_error (mean_absolute_error, mean_squared_error, mean_error)
             testing_error (mean_absolute_error, mean_squared_error, mean_error)
@@ -299,18 +307,106 @@ class Utilities(object):
 
 
         # Calculating errors
-        mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training) 
+        mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training)
         mean_sq =  metrics.mean_squared_error(y_true_training, y_pred_training)
         mean_err = np.sqrt(metrics.mean_squared_error(y_true_training, y_pred_training))
         training_error = (mean_abs, mean_sq, mean_err)
 
-        mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing) 
+        mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing)
         mean_sq =  metrics.mean_squared_error(y_true_testing, y_pred_testing)
         mean_err = np.sqrt(metrics.mean_squared_error(y_true_testing, y_pred_testing))
         testing_error = (mean_abs, mean_sq, mean_err)
 
-        # Getting std deviation of hotttnesss    
+        # Getting std deviation of hotttnesss
         total_DF = training_DF.append(testing_DF)
         hot_std = total_DF['song_hotttnesss'].std()
 
         return linreg, training_error, testing_error, hot_std
+
+
+    def RunAndTestKNNModel(self, string_of_features, training_DF, testing_DF):
+        """
+        Put in raw string of features.  Will run sklearn.neighbors.KNeighborsClassifier() to predict hotttnesss.
+        Errors are calculated and returned as tuples.
+        Returns:
+            model class
+            training_error (mean_absolute_error, mean_squared_error, mean_error)
+            testing_error (mean_absolute_error, mean_squared_error, mean_error)
+            std dev of hotttnesss
+        """
+
+        X_cols = string_of_features.split()
+        X = training_DF[X_cols]
+        y_true_training = training_DF['song_hotttnesss']
+        y_true_testing = testing_DF['song_hotttnesss']
+
+        out_y_true_training = []
+        for ele in y_true_training:
+            integer = int(ele * 10)
+            out_y_true_training.append(integer)
+
+        out_y_true_testing = []
+        for ele in y_true_testing:
+            integer = int(ele * 10)
+            out_y_true_testing.append(integer)
+
+        KNN = KNeighborsClassifier(n_neighbors=3)
+#         print X
+#         print y_true_training[0]
+        KNN.fit(X, out_y_true_training)
+
+        # Predicting the training_set
+        y_pred_training = KNN.predict(X)
+
+        Y = testing_DF[X_cols]
+        # Predicting the testing_set
+        y_pred_testing = KNN.predict(Y)
+
+
+        print "Score for Training: \t" + str(KNN.score(X, out_y_true_training))
+        print "Score for Testing: \t" + str(KNN.score(Y, out_y_true_testing))
+
+        y_pred_training = [round(i/10.0, 1) for i in y_pred_training]
+
+        y_pred_testing = [round(i/10.0, 1)  for i in y_pred_testing]
+
+        out_y_true_training = [i/10.0 for i in out_y_true_training]
+
+        out_y_true_testing = [i/10.0 for i in out_y_true_testing]
+        # print y_pred_testing
+        # print out_y_true_testing
+
+
+#         print accuracy_score()
+
+
+        # Calculating training errors
+        mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training)
+        mean_sq =  metrics.mean_squared_error(y_true_training, y_pred_training)
+        mean_err = np.sqrt(metrics.mean_squared_error(y_true_training, y_pred_training))
+        training_error = (mean_abs, mean_sq, mean_err)
+
+        # Calculating errors for discrete values
+        discrete_mean_abs = metrics.mean_absolute_error(out_y_true_training, y_pred_training)
+        discrete_mean_sq =  metrics.mean_squared_error(out_y_true_training, y_pred_training)
+        discrete_mean_err = np.sqrt(metrics.mean_squared_error(out_y_true_training, y_pred_training))
+        discrete_training_error = (discrete_mean_abs, discrete_mean_sq, discrete_mean_err)
+
+
+        # Calculating testing errors
+        mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing)
+        mean_sq =  metrics.mean_squared_error(y_true_testing, y_pred_testing)
+        mean_err = np.sqrt(metrics.mean_squared_error(y_true_testing, y_pred_testing))
+        testing_error = (mean_abs, mean_sq, mean_err)
+
+        # Calculating errors for discrete values
+        discrete_mean_abs = metrics.mean_absolute_error(out_y_true_testing, y_pred_testing)
+        discrete_mean_sq =  metrics.mean_squared_error(out_y_true_testing, y_pred_testing)
+        discrete_mean_err = np.sqrt(metrics.mean_squared_error(out_y_true_testing, y_pred_testing))
+        discrete_testing_error = (discrete_mean_abs, discrete_mean_sq, discrete_mean_err)
+
+        # Getting std deviation of hotttnesss
+        total_DF = training_DF.append(testing_DF)
+        hot_std = total_DF['song_hotttnesss'].std()
+
+        return KNN, training_error, testing_error, hot_std, discrete_training_error, discrete_testing_error

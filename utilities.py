@@ -337,7 +337,7 @@ class Utilities(object):
 
 
 
-    def RunAndTestKNNModel(self, string_of_features, training_DF, testing_DF):
+    def RunAndTestKNNModel(self, string_of_features, training_DF, testing_DF, num_neighbors=3):
         """
         Put in raw string of features.  Will run sklearn.neighbors.KNeighborsClassifier() to predict hotttnesss.
         Errors are calculated and returned as tuples.
@@ -363,7 +363,7 @@ class Utilities(object):
             integer = int(ele * 10)
             out_y_true_testing.append(integer)
 
-        KNN = KNeighborsClassifier(n_neighbors=3)
+        KNN = KNeighborsClassifier(n_neighbors=num_neighbors)
 #         print X
 #         print y_true_training[0]
         KNN.fit(X, out_y_true_training)

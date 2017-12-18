@@ -24,6 +24,7 @@ Make sure the following files/folders are in the same directory:
     + energy measures **generalize better**.  theyre better on the test set
 
 
+
 ## master plan
 
 1. [x] write script to build sample dataset 

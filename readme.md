@@ -1,4 +1,4 @@
-# AI 530 MSD project
+# song dataset learner
 
 Make sure the following files/folders are in the same directory:
 + tutorials/

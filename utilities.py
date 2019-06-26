@@ -1,7 +1,7 @@
 """
 Utilities for handling song metadata in .db 
 """
- 
+
 import os
 import sys
 import time
@@ -49,11 +49,16 @@ class Utilities(object):
         response = self.db.execute(query)
         songs = response.fetchall()
 
-        partition_point = int(len(songs)*config.TRAIN_FRAC)
+        partition_point_1 = int(len(songs) * config.TRAIN_FRAC)
+        partition_point_2 = partition_point_1 + int(len(songs) * config.CV_FRAC)
+
         random.shuffle(songs)
-        train_data = songs[:partition_point]
-        test_data = songs[partition_point+1:]
-        return  train_data, test_data
+
+        train_data = songs[:partition_point_1]
+        test_data = songs[partition_point_1 + 1:partition_point_2]
+        cv_data = songs[partition_point_2 + 1:] 
+
+        return train_data, cv_data, test_data
 
 
 
@@ -79,14 +84,14 @@ class Utilities(object):
         response = self.db.execute(query)
         hotttnesss = response.fetchall()
         hotttnesss = [value[0] for value in hotttnesss]
-        return sum(hotttnesss)/float(len(hotttnesss))
+        return sum(hotttnesss) / float(len(hotttnesss))
 
 
 
-    def create_dataframes(self, training_list, testing_list):
+    def create_dataframes(self, training_list, crossvalid_list, testing_list):
         """
         transforms the list outputs of 'get_datasets()'
-        RETURN two dataframes: training_DF, testing_DF 
+        RETURN dataframes: training_DF, crossvalid_list, testing_DF 
         """
 
         column_names = "track_id \
@@ -117,120 +122,90 @@ class Utilities(object):
                         sections_avg".split()
 
         training_DF = pd.DataFrame(training_list, columns=column_names)
+        cv_DF = pd.DataFrame(crossvalid_list, columns=column_names)
         testing_DF = pd.DataFrame(testing_list, columns=column_names)
-        return training_DF, testing_DF
+        return training_DF, cv_DF, testing_DF
 
 
 
 
-    def generate_energy_measure(self, training_DF, testing_DF):
+    def generate_energy_measure(self, training_DF, cv_DF, testing_DF):
         """
-        adds energy measure values for all rows in both input dataframes
-        RETURN training_df, testing_df
-        """
-
-        DF = training_DF
-
-        loudness = DF['loudness']
-        tempo = DF['tempo']
-        time_sig = DF['time_signature']
-        sections_avg = DF['sections_avg']
-        beats_avg = DF['beats_avg']
-        tatums_avg = DF['tatums_avg']
-        art_fam = DF['artist_familiarity']
-        art_hot = DF['artist_hotttnesss']
-        
-        DF['energy1'] = art_fam*(50+loudness)/100
-        DF['energy2'] = (50+loudness)*3*art_fam/(500*beats_avg**0.5)
-        DF['energy3'] = (50+loudness)*art_fam/(100*tatums_avg**0.25)
-        DF['energy4'] = (50+loudness)*2*art_fam/(100000*tatums_avg*beats_avg)**0.5
-
-        training_DF = DF
-
-
-        # Repeat for testing
-        DF = testing_DF
-
-        loudness = DF['loudness']
-        tempo = DF['tempo']
-        time_sig = DF['time_signature']
-        sections_avg = DF['sections_avg']
-        beats_avg = DF['beats_avg']
-        tatums_avg = DF['tatums_avg']
-        art_fam = DF['artist_familiarity']
-        art_hot = DF['artist_hotttnesss']
-
-
-        # OLD HEURISTICS 
-        # DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
-        # DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
-        # DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
-        # DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
-        DF['energy1'] = art_fam*(50+loudness)/100
-        DF['energy2'] = (50+loudness)*3*art_fam/(500*beats_avg**0.5)
-        DF['energy3'] = (50+loudness)*art_fam/(100*tatums_avg**0.25)
-        DF['energy4'] = (50+loudness)*2*art_fam/(100000*tatums_avg*beats_avg)**0.5
-
-
-        testing_DF = DF
-
-        return training_DF, testing_DF
-    
-    def generate_dance_measure(self, training_DF, testing_DF):
-        """
-        adds energy measure values for all rows in both input dataframes
-        RETURN training_df, testing_df
+        adds energy measure values for all rows in input dataframes
+        RETURN training_df, cv_df, testing_df
         """
 
-        DF = training_DF
+        for frame in [training_DF, cv_DF, testing_DF]:
+            DF = frame
 
-        loudness = training_DF['loudness']
-        tempo = training_DF['tempo']
-        time_sig = training_DF['time_signature']
-        key = training_DF['key']
-        sections_avg = training_DF['sections_avg']
-        beats_avg = training_DF['beats_avg']
-        tatums_avg = training_DF['tatums_avg']
-        art_fam = DF['artist_familiarity']
-        art_hot = DF['artist_hotttnesss']
+            loudness = DF['loudness']
+            tempo = DF['tempo']
+            time_sig = DF['time_signature']
+            sections_avg = DF['sections_avg']
+            beats_avg = DF['beats_avg']
+            tatums_avg = DF['tatums_avg']
+            art_fam = DF['artist_familiarity']
+            art_hot = DF['artist_hotttnesss']
 
-        DF['dance1'] = (12-time_sig)*(tempo)**0.5*(50+loudness)*art_hot/1000
-        DF['dance2'] = (12-time_sig)**0.5*(tempo)**0.5*(50+loudness)*2*art_hot/1000
-        DF['dance3'] = (12-time_sig)**0.5*(tempo)*(50+loudness)**2*art_fam/1000000
-        DF['dance4'] = (12-time_sig)**0.5*(tempo)*(50+loudness)*art_fam/10000
-        
-        training_DF = DF
+            DF['energy1'] = art_fam * (50 + loudness) / 100
+            DF['energy2'] = (50 + loudness) * 3 * art_fam / (500 * beats_avg**0.5)
+            DF['energy3'] = (50 + loudness) * art_fam / (100 * tatums_avg**0.25)
+            DF['energy4'] = (50 + loudness) * 2 * art_fam / (100000 * tatums_avg * beats_avg)**0.5
 
+            # OLD HEURISTICS 
+            # DF['energy1'] = (50+loudness)**2*(12-time_sig)/1000
+            # DF['energy2'] = (50+loudness)**2*(12-time_sig)/(5000*beats_avg)
+            # DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
+            # DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
 
-        # Repeat for testing
-        DF = testing_DF
+            frame = DF
 
-        loudness = DF['loudness']
-        tempo = DF['tempo']
-        time_sig = DF['time_signature']
-        sections_avg = DF['sections_avg']
-        beats_avg = DF['beats_avg']
-        tatums_avg = DF['tatums_avg']
-        art_fam = DF['artist_familiarity']
-        art_hot = DF['artist_hotttnesss']
+        return training_DF, cv_DF, testing_DF
 
 
-        # DF['dance1'] = (12-time_sig)**2*(tempo)*(50+loudness)/10000
-        # DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
-        # DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
-        # DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
-        DF['dance1'] = (12-time_sig)*(tempo)**0.5*(50+loudness)*art_hot/1000
-        DF['dance2'] = (12-time_sig)**0.5*(tempo)**0.5*(50+loudness)*2*art_hot/1000
-        DF['dance3'] = (12-time_sig)**0.5*(tempo)*(50+loudness)**2*art_fam/1000000
-        DF['dance4'] = (12-time_sig)**0.5*(tempo)*(50+loudness)*art_fam/10000
 
-        testing_DF = DF
+    def generate_dance_measure(self, training_DF, cv_DF, testing_DF):
+        """
+        adds energy measure values for all rows in input dataframes
+        RETURN training_DF, cv_DF, testing_DF
+        """
 
-        return training_DF, testing_DF
-    
+        for frame in [training_DF, cv_DF, testing_DF]:
+            DF = frame
+
+            loudness = training_DF['loudness']
+            tempo = training_DF['tempo']
+            time_sig = training_DF['time_signature']
+            key = training_DF['key']
+            sections_avg = training_DF['sections_avg']
+            beats_avg = training_DF['beats_avg']
+            tatums_avg = training_DF['tatums_avg']
+            art_fam = DF['artist_familiarity']
+            art_hot = DF['artist_hotttnesss']
+
+            DF['dance1'] = (12 - time_sig) * (tempo)**0.5 * (50 + loudness) * art_hot / 1000
+            DF['dance2'] = (12 - time_sig)**0.5 * (tempo)**0.5 * (50 + loudness) * 2 * art_hot / 1000
+            DF['dance3'] = (12 - time_sig)**0.5 * (tempo) * (50 + loudness) ** 2 * art_fam / 1000000
+            DF['dance4'] = (12 - time_sig)**0.5 * (tempo) * (50 + loudness) * art_fam / 10000
+
+            # OLD HUERISTICS 
+            # DF['dance1'] = (12-time_sig)**2*(tempo)*(50+loudness)/10000
+            # DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
+            # DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
+            # DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
+            frame = DF
+
+        return training_DF, cv_DF, testing_DF
 
 
-    
+
+    def normalize_numeric_columns(training_DF, cv_DF, testing_DF):
+
+
+        return training_DF, cv_DF, testing_DF
+
+
+
     def RunAndTestLinearRegModel(self, string_of_features, training_DF, testing_DF):
         """
         Put in raw string of features.  Will run sklearn.linear_model.LinearRegression() to predict hotttnesss.
@@ -258,12 +233,12 @@ class Utilities(object):
 
         # Calculating errors
         mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training) 
-        mean_sq =  metrics.mean_squared_error(y_true_training, y_pred_training)
+        mean_sq = metrics.mean_squared_error(y_true_training, y_pred_training)
         mean_err = np.sqrt(metrics.mean_squared_error(y_true_training, y_pred_training))
         training_error = (mean_abs, mean_sq, mean_err)
 
         mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing) 
-        mean_sq =  metrics.mean_squared_error(y_true_testing, y_pred_testing)
+        mean_sq = metrics.mean_squared_error(y_true_testing, y_pred_testing)
         mean_err = np.sqrt(metrics.mean_squared_error(y_true_testing, y_pred_testing))
         testing_error = (mean_abs, mean_sq, mean_err)
 
@@ -272,6 +247,7 @@ class Utilities(object):
         hot_std = total_DF['song_hotttnesss'].std()
 
         return linreg, training_error, testing_error, hot_std
+
 
 
 

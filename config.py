@@ -6,8 +6,9 @@ DB_FILENAME = 'swagmaster-with-intervals.db'
 
 HOTFILTER = "WHERE song_hotttnesss>0 AND artist_hotttnesss>0 AND beats_avg>0 AND bars_avg>0"
 
-TRAIN_FRAC = 0.75
-TEST_FRAC = 1-TRAIN_FRAC
+TRAIN_FRAC = 0.60
+CV_FRAC = 0.20
+TEST_FRAC = 1 - TRAIN_FRAC - CV_FRAC
 
 
 INDEX_track_id            = 0

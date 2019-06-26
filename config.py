@@ -36,5 +36,3 @@ INDEX_tatums_avg          = 22
 INDEX_beats_avg           = 23
 INDEX_bars_avg            = 24
 INDEX_sections_avg        = 25
-
-

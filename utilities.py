@@ -61,6 +61,45 @@ class Utilities(object):
         return train_data, cv_data, test_data
 
 
+    def create_dataframes(self, training_list, crossvalid_list, testing_list):
+        """
+        transforms the list outputs of 'get_datasets()'
+        RETURN dataframes: training_DF, crossvalid_list, testing_DF 
+        """
+
+        column_names = "track_id            \
+                        title               \
+                        song_id             \
+                        release             \
+                        artist_id           \
+                        artist_mbid         \
+                        artist_name         \
+                        duration            \
+                        artist_familiarity  \
+                        artist_hotttnesss   \
+                        year                \
+                        track_7digitalid    \
+                        shs_perf            \
+                        shs_work            \
+                        song_hotttnesss     \
+                        danceability        \
+                        energy              \
+                        key                 \
+                        tempo               \
+                        loudness            \
+                        time_signature      \
+                        segments_avg        \
+                        tatums_avg          \
+                        beats_avg           \
+                        bars_avg            \
+                        sections_avg".split()
+
+        training_DF = pd.DataFrame(training_list, columns=column_names)
+        cv_DF = pd.DataFrame(crossvalid_list, columns=column_names)
+        testing_DF = pd.DataFrame(testing_list, columns=column_names)
+
+        return training_DF, cv_DF, testing_DF
+
 
     def get_hotttnesss_list(self):
         """
@@ -88,55 +127,13 @@ class Utilities(object):
 
 
 
-    def create_dataframes(self, training_list, crossvalid_list, testing_list):
-        """
-        transforms the list outputs of 'get_datasets()'
-        RETURN dataframes: training_DF, crossvalid_list, testing_DF 
-        """
-
-        column_names = "track_id \
-                        title               \
-                        song_id             \
-                        release             \
-                        artist_id           \
-                        artist_mbid         \
-                        artist_name         \
-                        duration            \
-                        artist_familiarity  \
-                        artist_hotttnesss   \
-                        year                \
-                        track_7digitalid    \
-                        shs_perf            \
-                        shs_work            \
-                        song_hotttnesss     \
-                        danceability        \
-                        energy              \
-                        key                 \
-                        tempo               \
-                        loudness            \
-                        time_signature \
-                        segments_avg \
-                        tatums_avg \
-                        beats_avg \
-                        bars_avg \
-                        sections_avg".split()
-
-        training_DF = pd.DataFrame(training_list, columns=column_names)
-        cv_DF = pd.DataFrame(crossvalid_list, columns=column_names)
-        testing_DF = pd.DataFrame(testing_list, columns=column_names)
-        return training_DF, cv_DF, testing_DF
-
-
-
-
     def generate_energy_measure(self, training_DF, cv_DF, testing_DF):
         """
         adds energy measure values for all rows in input dataframes
         RETURN training_df, cv_df, testing_df
         """
 
-        for frame in [training_DF, cv_DF, testing_DF]:
-            DF = frame
+        for DF in [training_DF, cv_DF, testing_DF]:
 
             loudness = DF['loudness']
             tempo = DF['tempo']
@@ -158,7 +155,6 @@ class Utilities(object):
             # DF['energy3'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg)
             # DF['energy4'] = (50+loudness)**2*(12-time_sig)/(10000*tatums_avg*beats_avg)
 
-            frame = DF
 
         return training_DF, cv_DF, testing_DF
 
@@ -170,16 +166,15 @@ class Utilities(object):
         RETURN training_DF, cv_DF, testing_DF
         """
 
-        for frame in [training_DF, cv_DF, testing_DF]:
-            DF = frame
+        for DF in [training_DF, cv_DF, testing_DF]:
 
-            loudness = training_DF['loudness']
-            tempo = training_DF['tempo']
-            time_sig = training_DF['time_signature']
-            key = training_DF['key']
-            sections_avg = training_DF['sections_avg']
-            beats_avg = training_DF['beats_avg']
-            tatums_avg = training_DF['tatums_avg']
+            loudness = DF['loudness']
+            tempo = DF['tempo']
+            time_sig = DF['time_signature']
+            key = DF['key']
+            sections_avg = DF['sections_avg']
+            beats_avg = DF['beats_avg']
+            tatums_avg = DF['tatums_avg']
             art_fam = DF['artist_familiarity']
             art_hot = DF['artist_hotttnesss']
 
@@ -193,7 +188,7 @@ class Utilities(object):
             # DF['dance2'] = (12-time_sig)*(tempo)**2*(50+loudness)/(2500000)
             # DF['dance3'] = (12-time_sig)*(tempo)*(50+loudness)**2/(1000000)
             # DF['dance4'] = (12-time_sig)**2*(tempo)*(50+loudness)/(100000)
-            frame = DF
+
 
         return training_DF, cv_DF, testing_DF
 
@@ -201,8 +196,15 @@ class Utilities(object):
 
     def normalize_numeric_columns(training_DF, cv_DF, testing_DF):
 
+        numeric_cols = training_DF._get_numeric_data().columns 
+
 
         return training_DF, cv_DF, testing_DF
+
+
+
+
+
 
 
 

@@ -4,6 +4,12 @@ The objective is to predict the success of a music track using acoustic (tempo, 
 The measure of success is tied to a song's "hotttness" score.  This metric is assigned to tracks by the API providers based on mentions in news, play counts, radio airtime, Billboard rankings, and reviews on popular music websites.  This measure is directly correlated with the revenue of the track on market.  
 
 There is heavy focus on ontological modeling, feature engineering, and model selection.  
+ 
+
+Ontology describing feature space   
+![music ontology](/images/07-ontology.jpg)
+
+
 
 ## Findings
 

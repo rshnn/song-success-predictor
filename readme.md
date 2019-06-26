@@ -1,18 +1,18 @@
 # song dataset learner
 
-Make sure the following files/folders are in the same directory:
-+ tutorials/
-+ MSongsDB/
-+ MillionSongSubset/
-+ swagmaster.db
-+ create_track_metadata_db_custom.py
+The objective is to predict the success of a music track using acoustic (tempo, key) and metadata (genre, song duration) features of the track.  
 
-
+There is heavy focus on ontological modeling, feature engineering, and model selection.  
 
 ## Findings
 
 + metadata features are stronger indicators of hottt than acoustic 
 
+* Acoustic features are poor indicators of hottt, but features derived from the raw acoustic features have more predictive power 
+    * We decide that some of the acoustic features could  be combined into `energy` and `danceability`.
+        - Find out that ontologies represent these measures as derived values from other features: 
+            + `energy`: function of (loudness, segment stuff)
+            + `danceability`: function of (tempo, time_signature)
 
 + Combination of a couple of diverse features does better
     * Combination of different energy calculations
@@ -23,6 +23,16 @@ Make sure the following files/folders are in the same directory:
     * they actually perform better than the energy measures on the training set
     + energy measures **generalize better**.  theyre better on the test set
 
+
+
+## To run 
+
+Make sure the following files/folders are in the same directory:
++ tutorials/
++ MSongsDB/
++ MillionSongSubset/
++ swagmaster.db
++ create_track_metadata_db_custom.py
 
 
 ## master plan
@@ -46,15 +56,8 @@ Make sure the following files/folders are in the same directory:
         * SVM
         * kNN
 
-4.  Hopefully learning models using the above feature set perform poorly .  We decide that some of the acoustic features should be combined into `energy` and `danceability`.
-    + Do some googling.  Find out that ontologies represent these measures as derived values from other features: 
-        * `energy`: function of (loudness, segment stuff)
-        * `danceability`: function of (tempo, time_signature)
-
 
 ## building our dataset 
-
-Going to be very similar to the subset_track_metadata dataset.  Just adding more fields 
 
 ```sql
 CREATE TABLE songs (
@@ -128,7 +131,7 @@ CREATE TABLE songs (
     * Get all dudes with a float>value: `SELECT DISTINCT artist_name, artist_familiarity FROM songs WHERE artist_familiarity>.8`
         - Can use this one to filter out the tracks where hotttnesss is 0. (empty data) (WHERE NOT artist_hotttnesss=0)
 
-### Potentially useful links
+## References 
 
 + [github link -- matches artist names from yahoo ratings set to the MSD (by artist_id)](https://github.com/tbertinmahieux/MSongsDB/blob/master/Tasks_Demos/YahooRatings/match_artist_names.py)
 
@@ -139,12 +142,6 @@ CREATE TABLE songs (
 + [google group forum thing](https://groups.google.com/forum/#!forum/millionsongdataset)
   
 + [jupnbk. project that shows how to create subset datasets](http://nbviewer.jupyter.org/github/ds3-at-ucsd/msd-fp-p1/blob/master/grab_msd_data.ipynb)
-  
-+ [report -- similar project done @ stanford.](http://cs229.stanford.edu/proj2014/Angela%20Xue,%20Nick%20Dupoux,%20Predicting%20the%20Commercial%20Success%20of%20Songs%20Based%20on%20Lyrics%20and%20Other%20Metrics.pdf)  
-  
-[github repo for the above](https://github.com/njdup/music_success_predictor_v2)  
-"Average mean hotttnesss performs just as well LOL our features dont tell us shit" 
-"'Everything is fucked' njdup committed on Dec 12, 2014"
   
 + [github link --- some project that uses spark](https://github.com/hsudarshan/Trend_Analysis_MSD_using_Spark/blob/master/CSE740ProjectReport.pdf)
   

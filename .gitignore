@@ -8,4 +8,6 @@ track_metadata.db
 
 *.pyc
 .ipynb_checkpoints/
+*_backup.py 
+debug.log
 tutorials/.ipynb_checkpoints/

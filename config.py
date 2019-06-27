@@ -2,7 +2,7 @@
 configuration stuff
 """
 
-DB_FILENAME = 'swagmaster-with-intervals.db'
+DB_FILENAME = 'datastore/swagmaster-with-intervals.db'
 
 HOTFILTER = "WHERE song_hotttnesss>0 AND artist_hotttnesss>0 AND beats_avg>0 AND bars_avg>0"
 

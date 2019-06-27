@@ -37,3 +37,36 @@ INDEX_tatums_avg          = 22
 INDEX_beats_avg           = 23
 INDEX_bars_avg            = 24
 INDEX_sections_avg        = 25
+
+
+# # Acoustic Features 
+#     + key
+#     + tempo 
+#     + loudness 
+#     + time_signature 
+#     + tatums_avg 
+#     + segments_avg
+#     + beats_avg 
+#     + bars_avg 
+#     + sections_avg 
+acoustic_features = """
+                    key tempo loudness time_signature tatums_avg segments_avg 
+                    beats_avg bars_avg sections_avg
+                    """.split()
+
+
+
+
+# # Metadata Features 
+#   + duration
+#   + artist_familiartiy 
+#   + artist_hotttnesss 
+metadata_feaures = "duration artist_hotttnesss artist_familiarity".split()  
+
+
+# # New features 
+#   + energy 
+#   + danceability 
+constructed_features = "energy danceability".split()  
+energy_features = "energy1 energy2 energy3 energy4".split() 
+dance_features = "dance1 dance2 dance3 dance4".split() 

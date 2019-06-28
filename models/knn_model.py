@@ -1,86 +1,98 @@
-    def RunAndTestKNNModel(self, string_of_features, training_DF, testing_DF, num_neighbors=3):
+    
+import numpy as np
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn import metrics
+import config 
+from model_evaluator import ModelEvaluator  
+
+
+
+class kNeighborsManager():
+    """k Neighrest Neighbors classifier 
+        Contains sklearn KNeighborsRegressor 
+
+        Performs training and predicting. 
+        Cross validation and forward feature selection also done.   
+    """
+
+
+    def __init__(self, num_neighbors=5): 
+        self.model = KNeighborsRegressor(n_neighbors=num_neighbors)
+        
+    def train(self, X, y):
+        """Wraps sklearn fit function for single model use. 
         """
-        Put in raw string of features.  Will run sklearn.neighbors.KNeighborsClassifier() to predict hotttnesss.
-        Errors are calculated and returned as tuples.
-        Returns:
-            model class
-            training_error (mean_absolute_error, mean_squared_error, mean_error)
-            testing_error (mean_absolute_error, mean_squared_error, mean_error)
-            std dev of hotttnesss
+        return self.model.fit(X, y)
+
+
+    def predict(self, X):
+        """Wraps sklearn predict function for single model use.  
+        """
+        return self.model.predict(X)
+
+
+    def build_score_list(self, train_df, cv_df, features_list, maxk=100, step=2):
+        """
+        """
+        X = train_df[features_list]
+        X_cv = cv_df[features_list]
+
+        y = train_df['song_hotttnesss']
+        y_cv = cv_df['song_hotttnesss']
+
+
+        score_list = np.zeros([1, 2])
+
+        for k in np.arange(1, maxk, step):
+
+            model = KNeighborsRegressor(n_neighbors=k)
+            model.fit(X, y)
+            score = model.score(X_cv, y_cv)
+
+            score_list = np.append(score_list, [[k, score]], axis=0)
+
+        score_list = np.delete(score_list, (0), axis=0)     
+        return score_list 
+
+
+
+
+
+    def errors(self, train, test, features_list, k):
+        """Given a training set, test set, and feature list, will return the 
+            absolute mean error, mean square error, and mean error of the 
+            predictive model on the test set and training sets 
         """
 
-        X_cols = string_of_features.split()
-        X = training_DF[X_cols]
-        y_true_training = training_DF['song_hotttnesss']
-        y_true_testing = testing_DF['song_hotttnesss']
+        X = train[features_list]
+        y = train['song_hotttnesss']
 
-        out_y_true_training = []
-        for ele in y_true_training:
-            integer = int(ele * 10)
-            out_y_true_training.append(integer)
+        X_test = test[features_list]
+        y_test = test['song_hotttnesss']
 
-        out_y_true_testing = []
-        for ele in y_true_testing:
-            integer = int(ele * 10)
-            out_y_true_testing.append(integer)
 
-        KNN = KNeighborsClassifier(n_neighbors=num_neighbors)
-#         print X
-#         print y_true_training[0]
-        KNN.fit(X, out_y_true_training)
+        model = KNeighborsRegressor(k)
+        model.fit(X, y)
 
         # Predicting the training_set
-        y_pred_training = KNN.predict(X)
+        y_pred_training = model.predict(X)
 
-        Y = testing_DF[X_cols]
         # Predicting the testing_set
-        y_pred_testing = KNN.predict(Y)
+        y_pred_testing = model.predict(X_test)
 
+        # Calculating errors
+        mean_abs = metrics.mean_absolute_error(y, y_pred_training) 
+        mean_sq = metrics.mean_squared_error(y, y_pred_training)
+        mean_err = np.sqrt(metrics.mean_squared_error(y, y_pred_training))
+        training_error = {"mean_abs": mean_abs, "MSE": mean_sq, "mean_err": mean_err}
 
-        print "Score for Training: \t" + str(KNN.score(X, out_y_true_training))
-        print "Score for Testing: \t" + str(KNN.score(Y, out_y_true_testing))
+        mean_abs = metrics.mean_absolute_error(y_test, y_pred_testing) 
+        mean_sq = metrics.mean_squared_error(y_test, y_pred_testing)
+        mean_err = np.sqrt(metrics.mean_squared_error(y_test, y_pred_testing))
+        testing_error = {"mean_abs": mean_abs, "MSE": mean_sq, "mean_err": mean_err}
 
-        y_pred_training = [round(i/10.0, 1) for i in y_pred_training]
+        # Getting std deviation of hotttnesss    
+        hot_std = test['song_hotttnesss'].std()
 
-        y_pred_testing = [round(i/10.0, 1)  for i in y_pred_testing]
+        return model, training_error, testing_error, hot_std
 
-        out_y_true_training = [i/10.0 for i in out_y_true_training]
-
-        out_y_true_testing = [i/10.0 for i in out_y_true_testing]
-        # print y_pred_testing
-        # print out_y_true_testing
-
-
-#         print accuracy_score()
-
-
-        # Calculating training errors
-        mean_abs = metrics.mean_absolute_error(y_true_training, y_pred_training)
-        mean_sq =  metrics.mean_squared_error(y_true_training, y_pred_training)
-        mean_err = np.sqrt(metrics.mean_squared_error(y_true_training, y_pred_training))
-        training_error = (mean_abs, mean_sq, mean_err)
-
-        # Calculating errors for discrete values
-        discrete_mean_abs = metrics.mean_absolute_error(out_y_true_training, y_pred_training)
-        discrete_mean_sq =  metrics.mean_squared_error(out_y_true_training, y_pred_training)
-        discrete_mean_err = np.sqrt(metrics.mean_squared_error(out_y_true_training, y_pred_training))
-        discrete_training_error = (discrete_mean_abs, discrete_mean_sq, discrete_mean_err)
-
-
-        # Calculating testing errors
-        mean_abs = metrics.mean_absolute_error(y_true_testing, y_pred_testing)
-        mean_sq =  metrics.mean_squared_error(y_true_testing, y_pred_testing)
-        mean_err = np.sqrt(metrics.mean_squared_error(y_true_testing, y_pred_testing))
-        testing_error = (mean_abs, mean_sq, mean_err)
-
-        # Calculating errors for discrete values
-        discrete_mean_abs = metrics.mean_absolute_error(out_y_true_testing, y_pred_testing)
-        discrete_mean_sq =  metrics.mean_squared_error(out_y_true_testing, y_pred_testing)
-        discrete_mean_err = np.sqrt(metrics.mean_squared_error(out_y_true_testing, y_pred_testing))
-        discrete_testing_error = (discrete_mean_abs, discrete_mean_sq, discrete_mean_err)
-
-        # Getting std deviation of hotttnesss
-        total_DF = training_DF.append(testing_DF)
-        hot_std = total_DF['song_hotttnesss'].std()
-
-        return KNN, training_error, testing_error, hot_std, discrete_training_error, discrete_testing_error

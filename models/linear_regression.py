@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn import metrics
 import config 
-from utilities import Utilities
 from model_evaluator import ModelEvaluator 
 
 
@@ -12,7 +11,8 @@ class LinearRegressionManager():
     """Simple Multi Linear Regression Model 
         Contains sklearn LinearRegression class.  
 
-    Performs training and prediciing.  
+            Performs training and prediciing.  
+            Forward feature selection implemented.  
 
     """
 
@@ -144,14 +144,14 @@ class LinearRegressionManager():
 
         # Calculating errors
         mean_abs = metrics.mean_absolute_error(y, y_pred_training) 
-        mean_sq =  metrics.mean_squared_error(y, y_pred_training)
+        mean_sq = metrics.mean_squared_error(y, y_pred_training)
         mean_err = np.sqrt(metrics.mean_squared_error(y, y_pred_training))
-        training_error = {"mean_abs": mean_abs, "MSE": mean_sq, "mean_err":mean_err}
+        training_error = {"mean_abs": mean_abs, "MSE": mean_sq, "mean_err": mean_err}
 
         mean_abs = metrics.mean_absolute_error(y_test, y_pred_testing) 
-        mean_sq =  metrics.mean_squared_error(y_test, y_pred_testing)
+        mean_sq = metrics.mean_squared_error(y_test, y_pred_testing)
         mean_err = np.sqrt(metrics.mean_squared_error(y_test, y_pred_testing))
-        testing_error = {"mean_abs": mean_abs, "MSE": mean_sq, "mean_err":mean_err}
+        testing_error = {"mean_abs": mean_abs, "MSE": mean_sq, "mean_err": mean_err}
 
         # Getting std deviation of hotttnesss    
         hot_std = test['song_hotttnesss'].std()
